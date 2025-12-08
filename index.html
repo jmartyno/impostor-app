@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IMPOSTOR</title>
 <link rel="manifest" href="manifest.json">
+
 <style>
     body { font-family: Arial; text-align:center; padding:20px; background:#f0f8ff; }
     button { padding:15px; font-size:18px; margin-top:20px; width:80%; border-radius:12px; }
@@ -19,33 +20,37 @@
 // =============================
 const listas = {
     animales: [
-        "PERRO","GATO","ELEFANTE","LEON","TIBURON","PINGÜINO","CABALLO","JIRAFA","GORILA","BABOSA","SALTAMONTES","ORUGA"
+        "PERRO","GATO","ELEFANTE","LEON","TIBURON","PINGÜINO","CABALLO","JIRAFA"
     ],
     objetos: [
-        "TECLADO","TELEVISOR","VENTILADOR","RELOJ","MOCHILA","TIJERAS","BOTELLA","LINTERNA","ORDENADOR","CINTURON","CAMA"
+        "TECLADO","TELEVISOR","VENTILADOR","RELOJ","MOCHILA","TIJERAS","BOTELLA","LINTERNA"
     ],
     profesiones: [
-        "MEDICO","PILOTO","ABOGADO","CARPINTERO","MECANICO","PROFESOR","ENFERMERO","CAMARERO","INGENIERO","MUSICO"
+        "MEDICO","PILOTO","ABOGADO","CARPINTERO","MECANICO","PROFESOR","ENFERMERO","CAMARERO"
     ],
     acciones: [
-        "CORRER","SALTAR","BOSTEZAR","ESCRIBIR","BESAR","SUSURRAR","NADAR","SALUDAR","CAGAR","MEAR","ESTORNUDAR"
+        "CORRER","SALTAR","BOSTEZAR","ESCRIBIR","BESAR","SUSURRAR","NADAR","SALUDAR"
     ],
     comida: [
-        "PIZZA","HAMBURGUESA","SUSHI","HELADO","PAELLA","TORTILLA","CHOCOLATE","PASTA","COCIDO","LENTEJAS","FABADA"
+        "PIZZA","HAMBURGUESA","SUSHI","HELADO","PAELLA","TORTILLA","CHOCOLATE","PASTA"
     ],
-    marcas: ["NIKE","ADIDAS","ZARA","APPLE","TESLA","GUCCI","PRADA","SAMSUNG","BMW","MERCEDES","ROLEX","RAYBAN","CHANEL","COCACOLA",
-        "AMAZON","SPOTIFY","AUDI","LOEWE","BALENCIAGA","DUREX"
-    ],    
-    adultos: ["SEXO","BORRACHO","RESACA","CORNUDO","ORGASMO","CULO","EMPALMADO","PUTICLUB","LIGUE","DESEO",
-        "PROSTI","CONDÓN","PORNO","FETICHE","TRÍO","PAGAFANTAS","DROGA",
-        "VICIO","PASIÓN","TETAS","NINFÓMANA","PUTA","SOCIALISTA","POLLA","COÑO","SUBNORMAL"
+    marcas: [
+        "NIKE","ADIDAS","ZARA","APPLE","TESLA","GUCCI","PRADA","SAMSUNG","BMW",
+        "MERCEDES","ROLEX","RAYBAN","CHANEL","COCACOLA","AMAZON","SPOTIFY","AUDI",
+        "LOEWE","BALENCIAGA","DUREX"
     ],
+    adultos: [
+        "SEXO","BORRACHO","RESACA","CUERNO","ORGASMO",
+        "CULO","EMPALMADO","PUTICLUB","LIGUE","DESEO",
+        "PROSTI","CONDÓN","PORNO","FETICHE","TRÍO",
+        "VICIO","PASIÓN","TETAS","NINFÓMANA","JUEGO","CALE"
+    ]
 };
 
 let roles = [];
 let current = 0;
 let adultosDesbloqueado = false;  
-const PIN_ADULTOS = "1234"; // <<< AQUÍ CAMBIAS EL PIN
+const PIN_ADULTOS = "1234"; // CAMBIA AQUÍ EL PIN
 
 // =============================
 // DESBLOQUEO TEMÁTICA ADULTOS
@@ -79,7 +84,7 @@ function startGame() {
     if (!p || !i) { alert("Rellena participantes e impostores"); return; }
     if (i >= p) { alert("Impostores debe ser menor que participantes"); return; }
 
-    // Selección automática de palabra por temática
+    // Palabra automática según temática
     const lista = listas[tema];
     const w = lista[Math.floor(Math.random() * lista.length)];
 
@@ -121,6 +126,7 @@ function nextPlayer() {
     updatePlayer();
 }
 
+// PWA
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("service-worker.js");
 }
@@ -146,6 +152,7 @@ if ("serviceWorker" in navigator) {
         <option value="profesiones">Profesiones</option>
         <option value="acciones">Acciones</option>
         <option value="comida">Comida</option>
+        <option value="marcas">Marcas</option>
         <option value="adultos">Adultos 🔒</option>
     </select>
     <br><br>
