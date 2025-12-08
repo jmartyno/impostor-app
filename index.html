@@ -10,18 +10,75 @@
     button { padding:15px; font-size:18px; margin-top:20px; width:80%; border-radius:12px; }
     #game { display:none; }
     #wordBox { font-size:32px; margin:30px 0; font-weight:bold; }
+    #pinBox { display:none; }
 </style>
+
 <script>
+// =============================
+// LISTAS TEMÁTICAS
+// =============================
+const listas = {
+    animales: [
+        "PERRO","GATO","ELEFANTE","LEON","TIBURON","PINGÜINO","CABALLO","JIRAFA"
+    ],
+    objetos: [
+        "TECLADO","TELEVISOR","VENTILADOR","RELOJ","MOCHILA","TIJERAS","BOTELLA","LINTERNA"
+    ],
+    profesiones: [
+        "MEDICO","PILOTO","ABOGADO","CARPINTERO","MECANICO","PROFESOR","ENFERMERO","CAMARERO"
+    ],
+    acciones: [
+        "CORRER","SALTAR","BOSTEZAR","ESCRIBIR","BESAR","SUSURRAR","NADAR","SALUDAR"
+    ],
+    comida: [
+        "PIZZA","HAMBURGUESA","SUSHI","HELADO","PAELLA","TORTILLA","CHOCOLATE","PASTA"
+    ],
+    adultos: [
+        "HIPOTECA","RESACA","DECLARACION RENTA","MULTA DE TRAFICO","FACTURA LUZ",
+        "INFLACIÓN","REUNIÓN DE TRABAJO","ALQUILER","SUEGRA","PAGO DEL COLE"
+    ]
+};
+
 let roles = [];
 let current = 0;
+let adultosDesbloqueado = false;  
+const PIN_ADULTOS = "1234"; // <<< AQUÍ CAMBIAS EL PIN
 
+// =============================
+// DESBLOQUEO TEMÁTICA ADULTOS
+// =============================
+function checkAdultos() {
+    if (document.getElementById("tema").value === "adultos" && !adultosDesbloqueado) {
+        document.getElementById("pinBox").style.display = "block";
+    }
+}
+
+function validarPIN() {
+    const pin = document.getElementById("pinInput").value;
+    if (pin === PIN_ADULTOS) {
+        adultosDesbloqueado = true;
+        document.getElementById("pinBox").style.display = "none";
+        alert("Temática ADULTOS desbloqueada");
+    } else {
+        alert("PIN incorrecto");
+        document.getElementById("tema").value = "animales";
+    }
+}
+
+// =============================
+// INICIAR JUEGO
+// =============================
 function startGame() {
     let p = parseInt(document.getElementById("players").value);
     let i = parseInt(document.getElementById("impostors").value);
-    let w = document.getElementById("word").value.trim();
+    let tema = document.getElementById("tema").value;
 
-    if (!p || !i || !w) { alert("Rellena todos los campos"); return; }
+    if (!p || !i) { alert("Rellena participantes e impostores"); return; }
     if (i >= p) { alert("Impostores debe ser menor que participantes"); return; }
+
+    // Selección automática de palabra por temática
+    const lista = listas[tema];
+    const w = lista[Math.floor(Math.random() * lista.length)];
 
     roles = Array(p).fill(w);
     for (let x = 0; x < i; x++) roles[x] = "IMPOSTOR";
@@ -54,7 +111,7 @@ function showWord() {
 function nextPlayer() {
     current++;
     if (current >= roles.length) {
-        alert("Todos han visto su palabra. ¡Listos para jugar!");
+        alert("Todos han visto su palabra. ¡A jugar!");
         location.reload();
         return;
     }
@@ -72,14 +129,30 @@ if ("serviceWorker" in navigator) {
 <h2>IMPOSTOR</h2>
 
 <div id="setup">
+
     <label>Nº Participantes:</label><br>
     <input id="players" type="number"><br><br>
 
     <label>Nº Impostores:</label><br>
     <input id="impostors" type="number"><br><br>
 
-    <label>Palabra:</label><br>
-    <input id="word" type="text" placeholder="Ej: ELECTRICIDAD"><br><br>
+    <label>Temática:</label><br>
+    <select id="tema" onchange="checkAdultos()">
+        <option value="animales">Animales</option>
+        <option value="objetos">Objetos</option>
+        <option value="profesiones">Profesiones</option>
+        <option value="acciones">Acciones</option>
+        <option value="comida">Comida</option>
+        <option value="adultos">Adultos 🔒</option>
+    </select>
+    <br><br>
+
+    <div id="pinBox">
+        <label>Introduce PIN:</label><br>
+        <input id="pinInput" type="password">
+        <button onclick="validarPIN()">OK</button>
+        <br><br>
+    </div>
 
     <button onclick="startGame()">Comenzar</button>
 </div>
@@ -94,4 +167,3 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
-
