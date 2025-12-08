@@ -126,17 +126,22 @@ function nextPlayer() {
     // Si era el último jugador
     if (current >= roles.length) {
 
-        // Ocultar la palabra ANTES de mostrar el mensaje
+        // Ocultar palabra y botones inmediatamente
         document.getElementById("wordBox").innerText = "";
-
-        // También ocultamos los botones por seguridad
         document.getElementById("showBtn").style.display = "none";
         document.getElementById("nextBtn").style.display = "none";
 
-        alert("Todos han visto su palabra. ¡A jugar!");
+        // Mostrar pantalla final
+        document.getElementById("playerNum").innerText = "";
+        document.getElementById("wordBox").innerText = "¡A JUGAR!";
+        document.getElementById("wordBox").style.fontSize = "40px";
+        document.getElementById("wordBox").style.color = "#008000";
 
-        // Recargar la app limpia
-        location.reload();
+        // Volver al inicio después de 2 segundos
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+
         return;
     }
 
