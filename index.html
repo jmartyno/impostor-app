@@ -1,1 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMPOSTOR</title>
+<link rel="manifest" href="manifest.json">
+<style>
+    body { font-family: Arial; text-align:center; padding:20px; background:#f0f8ff; }
+    button { padding:15px; font-size:18px; margin-top:20px; width:80%; border-radius:12px; }
+    #game { display:none; }
+    #wordBox { font-size:32px; margin:30px 0; font-weight:bold; }
+</style>
+<script>
+let roles = [];
+let current = 0;
+
+function startGame() {
+    let p = parseInt(document.getElementById("players").value);
+    let i = parseInt(document.getElementById("impostors").value);
+    let w = document.getElementById("word").value.trim();
+
+    if (!p || !i || !w) { alert("Rellena todos los campos"); return; }
+    if (i >= p) { alert("Impostores debe ser menor que participantes"); return; }
+
+    roles = Array(p).fill(w);
+    for (let x = 0; x < i; x++) roles[x] = "IMPOSTOR";
+
+    roles.sort(() => Math.random() - 0.5);
+
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("game").style.display = "block";
+
+    updatePlayer();
+}
+
+function updatePlayer() {
+    document.getElementById("playerNum").innerText =
+        "Participante " + (current + 1);
+    document.getElementById("wordBox").innerText = "";
+    document.getElementById("showBtn").style.display = "inline-block";
+    document.getElementById("nextBtn").style.display = "none";
+}
+
+function showWord() {
+    const beep = new Audio("https://actions.google.com/sounds/v1/cartoon/boing.ogg");
+    beep.play();
+
+    document.getElementById("wordBox").innerText = roles[current];
+    document.getElementById("showBtn").style.display = "none";
+    document.getElementById("nextBtn").style.display = "inline-block";
+}
+
+function nextPlayer() {
+    current++;
+    if (current >= roles.length) {
+        alert("Todos han visto su palabra. ¡Listos para jugar!");
+        location.reload();
+        return;
+    }
+    updatePlayer();
+}
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+</head>
+
+<body>
+
+<h2>IMPOSTOR</h2>
+
+<div id="setup">
+    <label>Nº Participantes:</label><br>
+    <input id="players" type="number"><br><br>
+
+    <label>Nº Impostores:</label><br>
+    <input id="impostors" type="number"><br><br>
+
+    <label>Palabra:</label><br>
+    <input id="word" type="text" placeholder="Ej: ELECTRICIDAD"><br><br>
+
+    <button onclick="startGame()">Comenzar</button>
+</div>
+
+<div id="game">
+    <h3 id="playerNum"></h3>
+    <div id="wordBox"></div>
+
+    <button id="showBtn" onclick="showWord()">Mostrar palabra</button>
+    <button id="nextBtn" onclick="nextPlayer()" style="display:none;">Pasar móvil</button>
+</div>
+
+</body>
+</html>
 
