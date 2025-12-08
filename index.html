@@ -12,6 +12,16 @@
     #game { display:none; }
     #wordBox { font-size:32px; margin:30px 0; font-weight:bold; }
     #pinBox { display:none; }
+    #leyenda { 
+        display:none;
+        font-size:14px;
+        margin-top:15px;
+        padding:10px;
+        color:#444;
+        max-width:90%;
+        margin-left:auto;
+        margin-right:auto;
+    }
 </style>
 
 <script>
@@ -40,21 +50,21 @@ const listas = {
         "LOEWE","BALENCIAGA","SAGAZMOBILITY","LATRAJERIA","SAGAZ","DUREX","PORSCHE"
     ],
     personajes: [
-        "PEDRO SANCHEZ","PABLO IGLESIAS","ERREJON","ABASCAL","ALVISE","RAJOY","AZNAR",
-        "DAVID BISBAL","JUAN CARLOS I","FELIPE VI","YOLANDA DIAZ","MªJESUS MONTERO","FRANCO"
-    ],    
+        "PEDROSANCHEZ","IGLESIAS","ERREJON","ABASCAL","ALVISE","RAJOY","AZNAR",
+        "BISBAL","JUANCARLOS","FELIPEVI","YOLANDADIAZ","MONTERO","FRANCO"
+    ],
     adultos: [
         "SEXO","BORRACHO","RESACA","CORNUDO","ORGASMO",
         "CULO","EMPALMADO","PUTICLUB","69","DESEO",
-        "CONDÓN","PORNO","FETICHE","TRÍO","GIGOLO",
-        "VICIO","PASIÓN","TETAS","NINFÓMANA","PUTA","COÑO","POLLA"
+        "CONDON","PORNO","FETICHE","TRIO","GIGOLO",
+        "VICIO","PASION","TETAS","NINFOMANA","PUTA","CONO","POLLA"
     ]
 };
 
 let roles = [];
 let current = 0;
 let adultosDesbloqueado = false;  
-const PIN_ADULTOS = "1234"; // CAMBIA AQUÍ EL PIN
+const PIN_ADULTOS = "1234"; // CAMBIAR AQUÍ SI QUIERES OTRO PIN
 
 // =============================
 // DESBLOQUEO TEMÁTICA ADULTOS
@@ -88,6 +98,10 @@ function startGame() {
     if (!p || !i) { alert("Rellena participantes e impostores"); return; }
     if (i >= p) { alert("Impostores debe ser menor que participantes"); return; }
 
+    // Ocultar título y mostrar leyenda
+    document.getElementById("tituloJuego").style.display = "none";
+    document.getElementById("leyenda").style.display = "block";
+
     // Palabra automática según temática
     const lista = listas[tema];
     const w = lista[Math.floor(Math.random() * lista.length)];
@@ -103,14 +117,21 @@ function startGame() {
     updatePlayer();
 }
 
+// =============================
+// SIGUIENTE JUGADOR
+// =============================
 function updatePlayer() {
     document.getElementById("playerNum").innerText =
         "Participante " + (current + 1);
+
     document.getElementById("wordBox").innerText = "";
     document.getElementById("showBtn").style.display = "inline-block";
     document.getElementById("nextBtn").style.display = "none";
 }
 
+// =============================
+// MOSTRAR PALABRA
+// =============================
 function showWord() {
     const beep = new Audio("https://actions.google.com/sounds/v1/cartoon/boing.ogg");
     beep.play();
@@ -120,36 +141,37 @@ function showWord() {
     document.getElementById("nextBtn").style.display = "inline-block";
 }
 
+// =============================
+// SIGUIENTE O FIN DEL JUEGO
+// =============================
 function nextPlayer() {
     current++;
 
-    // Si era el último jugador
     if (current >= roles.length) {
 
-        // Ocultar palabra y botones inmediatamente
+        // Ocultar palabra y botones
         document.getElementById("wordBox").innerText = "";
         document.getElementById("showBtn").style.display = "none";
         document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("leyenda").style.display = "none";
 
-        // Mostrar pantalla final
+        // Pantalla final
         document.getElementById("playerNum").innerText = "";
         document.getElementById("wordBox").innerText = "¡A JUGAR!";
         document.getElementById("wordBox").style.fontSize = "40px";
         document.getElementById("wordBox").style.color = "#008000";
 
-        // Volver al inicio después de 2 segundos
-        setTimeout(() => {
-            location.reload();
-        }, 2000);
-
+        // Reinicio automático
+        setTimeout(() => location.reload(), 2000);
         return;
     }
 
     updatePlayer();
 }
 
-
-// PWA
+// =============================
+// SERVICE WORKER
+// =============================
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("service-worker.js");
 }
@@ -158,7 +180,7 @@ if ("serviceWorker" in navigator) {
 
 <body>
 
-<h2>IMPOSTOR</h2>
+<h2 id="tituloJuego">IMPOSTOR</h2>
 
 <div id="setup">
 
@@ -197,6 +219,11 @@ if ("serviceWorker" in navigator) {
 
     <button id="showBtn" onclick="showWord()">Mostrar palabra</button>
     <button id="nextBtn" onclick="nextPlayer()" style="display:none;">Pasar móvil</button>
+
+    <div id="leyenda">
+        Tendrás que decir palabras relacionadas con la que ves arriba, pero nunca decirla directamente.
+        Para dificultar el juego, usa pistas que tengan sentido pero no sean literales, porque el impostor podría detectarlo.
+    </div>
 </div>
 
 </body>
