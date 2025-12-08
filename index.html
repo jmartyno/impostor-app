@@ -10,7 +10,7 @@
     body { font-family: Arial; text-align:center; padding:20px; background:#f0f8ff; }
     button { padding:15px; font-size:18px; margin-top:20px; width:80%; border-radius:12px; }
     #game { display:none; }
-    #wordBox { font-size:32px; margin:30px 0; font-weight:bold; }
+    #wordBox { font-size:32px; margin:30px 0; font-weight:bold; white-space:pre-line; }
     #pinBox { display:none; }
     #leyenda { 
         display:none;
@@ -29,60 +29,45 @@
 // LISTAS TEMÁTICAS
 // =============================
 const listas = {
-    animales: [
-        "PERRO","GATO","ELEFANTE","LEON","TIBURON","PINGÜINO","CABALLO","JIRAFA","BABOSA","ESCORPION","RATA"
-    ],
-    objetos: [
-        "TECLADO","TELEVISOR","VENTILADOR","RELOJ","MOCHILA","TIJERAS","BOTELLA","LINTERNA","NEVERA","BOTELLA"
-    ],
-    profesiones: [
-        "MEDICO","PILOTO","ABOGADO","CARPINTERO","MECANICO","PROFESOR","ENFERMERO","CAMARERO","INGENIERO","MUSICO"
-    ],
-    acciones: [
-        "CORRER","SALTAR","BOSTEZAR","ESCRIBIR","BESAR","SUSURRAR","NADAR","SALUDAR"
-    ],
-    comida: [
-        "PIZZA","HAMBURGUESA","SUSHI","HELADO","PAELLA","TORTILLA","CHOCOLATE","PASTA"
-    ],
-    marcas: [
-        "NIKE","ADIDAS","ZARA","APPLE","TESLA","GUCCI","PRADA","SAMSUNG","BMW",
-        "MERCEDES","ROLEX","RAYBAN","CHANEL","COCACOLA","AMAZON","SPOTIFY","AUDI",
-        "LOEWE","BALENCIAGA","SAGAZMOBILITY","LATRAJERIA","SAGAZ","DUREX","PORSCHE"
-    ],
-    personajes: [
-        "PEDROSANCHEZ","IGLESIAS","ERREJON","ABASCAL","ALVISE","RAJOY","AZNAR",
-        "BISBAL","JUANCARLOS","FELIPEVI","YOLANDADIAZ","MONTERO","FRANCO"
-    ],
-    adultos: [
-        "SEXO","BORRACHO","RESACA","CORNUDO","ORGASMO",
-        "CULO","EMPALMADO","PUTICLUB","69","DESEO",
-        "CONDON","PORNO","FETICHE","TRIO","GIGOLO",
-        "VICIO","PASION","TETAS","NINFOMANA","PUTA","CONO","POLLA"
-    ]
+    animales: ["PERRO","GATO","ELEFANTE","LEON","TIBURON","PINGÜINO","CABALLO","JIRAFA","BABOSA","ESCORPION","RATA"],
+    objetos: ["TECLADO","TELEVISOR","VENTILADOR","RELOJ","MOCHILA","TIJERAS","BOTELLA","LINTERNA","NEVERA","BOTELLA"],
+    profesiones: ["MEDICO","PILOTO","ABOGADO","CARPINTERO","MECANICO","PROFESOR","ENFERMERO","CAMARERO","INGENIERO","MUSICO"],
+    acciones: ["CORRER","SALTAR","BOSTEZAR","ESCRIBIR","BESAR","SUSURRAR","NADAR","SALUDAR"],
+    comida: ["PIZZA","HAMBURGUESA","SUSHI","HELADO","PAELLA","TORTILLA","CHOCOLATE","PASTA"],
+    marcas: ["NIKE","ADIDAS","ZARA","APPLE","TESLA","GUCCI","PRADA","SAMSUNG","BMW","MERCEDES","ROLEX","RAYBAN","CHANEL","COCACOLA","AMAZON","SPOTIFY","AUDI","LOEWE","BALENCIAGA","SAGAZMOBILITY","LATRAJERIA","SAGAZ","DUREX","PORSCHE"],
+    personajes: ["PEDROSANCHEZ","IGLESIAS","ERREJON","ABASCAL","ALVISE","RAJOY","AZNAR","BISBAL","JUANCARLOS","FELIPEVI","YOLANDADIAZ","MONTERO","FRANCO"],
+    adultos: ["SEXO","BORRACHO","RESACA","CORNUDO","ORGASMO","CULO","EMPALMADO","PUTICLUB","69","DESEO","CONDON","PORNO","FETICHE","TRIO","GIGOLO","VICIO","PASION","TETAS","NINFOMANA","PUTA","CONO","POLLA"]
 };
 
 let roles = [];
 let current = 0;
-let adultosDesbloqueado = false;  
-const PIN_ADULTOS = "1234"; // CAMBIAR AQUÍ SI QUIERES OTRO PIN
+let adultosDesbloqueado = false;
+const PIN_ADULTOS = "1234";
 
 // =============================
-// DESBLOQUEO TEMÁTICA ADULTOS
+// ASOCIAR EVENTOS A TODAS LAS CHECKBOX
+// =============================
+window.onload = function() {
+    document.querySelectorAll(".temaCheck").forEach(cb => {
+        cb.addEventListener("change", checkAdultos);
+    });
+};
+
+// =============================
+// CONTROL DE ADULTOS + PIN
 // =============================
 function checkAdultos() {
     const adultosCheck = document.querySelector('input[value="adultos"]');
 
-    // Si lo marca y NO está desbloqueado → pedir PIN
     if (adultosCheck.checked && !adultosDesbloqueado) {
         document.getElementById("pinBox").style.display = "block";
+        document.getElementById("pinInput").value = "";
     }
-    
-    // Si lo desmarca → ocultar cuadro PIN
+
     if (!adultosCheck.checked) {
         document.getElementById("pinBox").style.display = "none";
     }
 }
-
 
 function validarPIN() {
     const adultosCheck = document.querySelector('input[value="adultos"]');
@@ -90,15 +75,15 @@ function validarPIN() {
 
     if (pin === PIN_ADULTOS) {
         adultosDesbloqueado = true;
-        document.getElementById("pinBox").style.display = "none";
         alert("Temática ADULTOS desbloqueada");
+        document.getElementById("pinBox").style.display = "none";
     } else {
         alert("PIN incorrecto");
-        adultosCheck.checked = false; // ❗ Desmarcar adultos
+        adultosCheck.checked = false;
         document.getElementById("pinBox").style.display = "none";
+        adultosDesbloqueado = false;
     }
 }
-
 
 // =============================
 // INICIAR JUEGO
@@ -110,11 +95,9 @@ function startGame() {
     if (!p || !i) { alert("Rellena participantes e impostores"); return; }
     if (i >= p) { alert("Impostores debe ser menor que participantes"); return; }
 
-    // Ocultar título y mostrar leyenda
     document.getElementById("tituloJuego").style.display = "none";
     document.getElementById("leyenda").style.display = "block";
 
-    // 1) Obtener temas seleccionados
     let seleccionados = [...document.querySelectorAll(".temaCheck:checked")].map(t => t.value);
 
     if (seleccionados.length === 0) {
@@ -122,18 +105,14 @@ function startGame() {
         return;
     }
 
-    // 2) Si adultos está seleccionado → exigir PIN
     if (seleccionados.includes("adultos") && !adultosDesbloqueado) {
-        document.getElementById("pinBox").style.display = "block";
-        alert("Debes introducir el PIN para usar Adultos");
+        alert("Debes introducir el PIN antes de jugar con Adultos.");
         return;
     }
 
-    // 3) Crear una lista combinada de palabras según temas
     let bolsa = [];
     seleccionados.forEach(t => bolsa = bolsa.concat(listas[t]));
 
-    // Elegir palabra final
     const w = bolsa[Math.floor(Math.random() * bolsa.length)];
 
     roles = Array(p).fill(w);
@@ -151,9 +130,7 @@ function startGame() {
 // SIGUIENTE JUGADOR
 // =============================
 function updatePlayer() {
-    document.getElementById("playerNum").innerText =
-        "Participante " + (current + 1);
-
+    document.getElementById("playerNum").innerText = "Participante " + (current + 1);
     document.getElementById("wordBox").innerText = "";
     document.getElementById("showBtn").style.display = "inline-block";
     document.getElementById("nextBtn").style.display = "none";
@@ -163,21 +140,16 @@ function updatePlayer() {
 // MOSTRAR PALABRA
 // =============================
 function showWord() {
-    const beep = new Audio("https://actions.google.com/sounds/v1/cartoon/boing.ogg");
-    beep.play();
+    const bop = new Audio("https://actions.google.com/sounds/v1/cartoon/boing.ogg");
+    bop.play();
 
     let palabra = roles[current];
 
-    // Si es impostor y queremos dar pista:
     if (palabra === "IMPOSTOR" && document.getElementById("pista").value === "si") {
-
-        // CREAR LA PISTA: otra palabra random de la misma bolsa temática
         let seleccionados = [...document.querySelectorAll(".temaCheck:checked")].map(t => t.value);
         let bolsa = [];
         seleccionados.forEach(t => bolsa = bolsa.concat(listas[t]));
-
         let pista = bolsa[Math.floor(Math.random() * bolsa.length)];
-
         palabra = "IMPOSTOR\n(PISTA: " + pista + ")";
     }
 
@@ -186,7 +158,6 @@ function showWord() {
     document.getElementById("nextBtn").style.display = "inline-block";
 }
 
-
 // =============================
 // SIGUIENTE O FIN DEL JUEGO
 // =============================
@@ -194,20 +165,16 @@ function nextPlayer() {
     current++;
 
     if (current >= roles.length) {
-
-        // Ocultar palabra y botones
         document.getElementById("wordBox").innerText = "";
         document.getElementById("showBtn").style.display = "none";
         document.getElementById("nextBtn").style.display = "none";
         document.getElementById("leyenda").style.display = "none";
 
-        // Pantalla final
         document.getElementById("playerNum").innerText = "";
         document.getElementById("wordBox").innerText = "¡A JUGAR!";
         document.getElementById("wordBox").style.fontSize = "40px";
         document.getElementById("wordBox").style.color = "#008000";
 
-        // Reinicio automático
         setTimeout(() => location.reload(), 2000);
         return;
     }
@@ -236,35 +203,33 @@ if ("serviceWorker" in navigator) {
     <label>Nº Impostores:</label><br>
     <input id="impostors" type="number"><br><br>
 
-   <label>Temáticas (puedes elegir varias):</label><br><br>
+    <label>Temáticas (puedes elegir varias):</label><br><br>
 
-<div style="text-align:left; display:inline-block;">
-    <label><input type="checkbox" class="temaCheck" value="animales"> Animales</label><br>
-    <label><input type="checkbox" class="temaCheck" value="objetos"> Objetos</label><br>
-    <label><input type="checkbox" class="temaCheck" value="profesiones"> Profesiones</label><br>
-    <label><input type="checkbox" class="temaCheck" value="acciones"> Acciones</label><br>
-    <label><input type="checkbox" class="temaCheck" value="comida"> Comida</label><br>
-    <label><input type="checkbox" class="temaCheck" value="marcas"> Marcas</label><br>
-    <label><input type="checkbox" class="temaCheck" value="personajes"> Personajes</label><br>
-    <label><input type="checkbox" class="temaCheck" value="adultos" onchange="checkAdultos()"> Adultos 🔒</label><br>
-</div>
-<br><br>
-
-<!-- PIN para adultos -->
-<div id="pinBox">
-    <label>Introduce PIN:</label><br>
-    <input id="pinInput" type="password">
-    <button onclick="validarPIN()">OK</button>
+    <div style="text-align:left; display:inline-block;">
+        <label><input type="checkbox" class="temaCheck" value="animales"> Animales</label><br>
+        <label><input type="checkbox" class="temaCheck" value="objetos"> Objetos</label><br>
+        <label><input type="checkbox" class="temaCheck" value="profesiones"> Profesiones</label><br>
+        <label><input type="checkbox" class="temaCheck" value="acciones"> Acciones</label><br>
+        <label><input type="checkbox" class="temaCheck" value="comida"> Comida</label><br>
+        <label><input type="checkbox" class="temaCheck" value="marcas"> Marcas</label><br>
+        <label><input type="checkbox" class="temaCheck" value="personajes"> Personajes</label><br>
+        <label><input type="checkbox" class="temaCheck" value="adultos"> Adultos 🔒</label><br>
+    </div>
     <br><br>
 
-</div>
+    <div id="pinBox">
+        <label>Introduce PIN:</label><br>
+        <input id="pinInput" type="password">
+        <button onclick="validarPIN()">OK</button>
+        <br><br>
+    </div>
+
     <label>¿Dar pista al impostor?</label><br>
     <select id="pista">
-    <option value="no">No</option>
-    <option value="si">Sí</option>
+        <option value="no">No</option>
+        <option value="si">Sí</option>
     </select>
     <br><br>
-
 
     <button onclick="startGame()">Comenzar</button>
 </div>
@@ -278,7 +243,7 @@ if ("serviceWorker" in navigator) {
 
     <div id="leyenda">
         Tendrás que decir palabras relacionadas con la que ves arriba, pero nunca decirla directamente.
-        Se ingenioso porque el impostor podría detectarlo y entonces ... estaremos perdidos!!!
+        Sé ingenioso porque el impostor podría detectarlo... ¡y estaremos perdidos!
     </div>
 </div>
 
