@@ -70,22 +70,35 @@ const PIN_ADULTOS = "1234"; // CAMBIAR AQUÍ SI QUIERES OTRO PIN
 // DESBLOQUEO TEMÁTICA ADULTOS
 // =============================
 function checkAdultos() {
-    if (document.getElementById("tema").value === "adultos" && !adultosDesbloqueado) {
+    const adultosCheck = document.querySelector('input[value="adultos"]');
+
+    // Si lo marca y NO está desbloqueado → pedir PIN
+    if (adultosCheck.checked && !adultosDesbloqueado) {
         document.getElementById("pinBox").style.display = "block";
+    }
+    
+    // Si lo desmarca → ocultar cuadro PIN
+    if (!adultosCheck.checked) {
+        document.getElementById("pinBox").style.display = "none";
     }
 }
 
+
 function validarPIN() {
+    const adultosCheck = document.querySelector('input[value="adultos"]');
     const pin = document.getElementById("pinInput").value;
+
     if (pin === PIN_ADULTOS) {
         adultosDesbloqueado = true;
         document.getElementById("pinBox").style.display = "none";
         alert("Temática ADULTOS desbloqueada");
     } else {
         alert("PIN incorrecto");
-        document.getElementById("tema").value = "animales";
+        adultosCheck.checked = false; // ❗ Desmarcar adultos
+        document.getElementById("pinBox").style.display = "none";
     }
 }
+
 
 // =============================
 // INICIAR JUEGO
@@ -93,7 +106,6 @@ function validarPIN() {
 function startGame() {
     let p = parseInt(document.getElementById("players").value);
     let i = parseInt(document.getElementById("impostors").value);
-    let tema = document.getElementById("tema").value;
 
     if (!p || !i) { alert("Rellena participantes e impostores"); return; }
     if (i >= p) { alert("Impostores debe ser menor que participantes"); return; }
@@ -102,9 +114,27 @@ function startGame() {
     document.getElementById("tituloJuego").style.display = "none";
     document.getElementById("leyenda").style.display = "block";
 
-    // Palabra automática según temática
-    const lista = listas[tema];
-    const w = lista[Math.floor(Math.random() * lista.length)];
+    // 1) Obtener temas seleccionados
+    let seleccionados = [...document.querySelectorAll(".temaCheck:checked")].map(t => t.value);
+
+    if (seleccionados.length === 0) {
+        alert("Selecciona al menos una temática");
+        return;
+    }
+
+    // 2) Si adultos está seleccionado → exigir PIN
+    if (seleccionados.includes("adultos") && !adultosDesbloqueado) {
+        document.getElementById("pinBox").style.display = "block";
+        alert("Debes introducir el PIN para usar Adultos");
+        return;
+    }
+
+    // 3) Crear una lista combinada de palabras según temas
+    let bolsa = [];
+    seleccionados.forEach(t => bolsa = bolsa.concat(listas[t]));
+
+    // Elegir palabra final
+    const w = bolsa[Math.floor(Math.random() * bolsa.length)];
 
     roles = Array(p).fill(w);
     for (let x = 0; x < i; x++) roles[x] = "IMPOSTOR";
@@ -136,10 +166,26 @@ function showWord() {
     const beep = new Audio("https://actions.google.com/sounds/v1/cartoon/boing.ogg");
     beep.play();
 
-    document.getElementById("wordBox").innerText = roles[current];
+    let palabra = roles[current];
+
+    // Si es impostor y queremos dar pista:
+    if (palabra === "IMPOSTOR" && document.getElementById("pista").value === "si") {
+
+        // CREAR LA PISTA: otra palabra random de la misma bolsa temática
+        let seleccionados = [...document.querySelectorAll(".temaCheck:checked")].map(t => t.value);
+        let bolsa = [];
+        seleccionados.forEach(t => bolsa = bolsa.concat(listas[t]));
+
+        let pista = bolsa[Math.floor(Math.random() * bolsa.length)];
+
+        palabra = "IMPOSTOR\n(PISTA: " + pista + ")";
+    }
+
+    document.getElementById("wordBox").innerText = palabra;
     document.getElementById("showBtn").style.display = "none";
     document.getElementById("nextBtn").style.display = "inline-block";
 }
+
 
 // =============================
 // SIGUIENTE O FIN DEL JUEGO
@@ -190,25 +236,35 @@ if ("serviceWorker" in navigator) {
     <label>Nº Impostores:</label><br>
     <input id="impostors" type="number"><br><br>
 
-    <label>Temática:</label><br>
-    <select id="tema" onchange="checkAdultos()">
-        <option value="animales">Animales</option>
-        <option value="objetos">Objetos</option>
-        <option value="profesiones">Profesiones</option>
-        <option value="acciones">Acciones</option>
-        <option value="comida">Comida</option>
-        <option value="marcas">Marcas</option>
-        <option value="personajes">Personajes</option>
-        <option value="adultos">Adultos 🔒</option>
+   <label>Temáticas (puedes elegir varias):</label><br><br>
+
+<div style="text-align:left; display:inline-block;">
+    <label><input type="checkbox" class="temaCheck" value="animales"> Animales</label><br>
+    <label><input type="checkbox" class="temaCheck" value="objetos"> Objetos</label><br>
+    <label><input type="checkbox" class="temaCheck" value="profesiones"> Profesiones</label><br>
+    <label><input type="checkbox" class="temaCheck" value="acciones"> Acciones</label><br>
+    <label><input type="checkbox" class="temaCheck" value="comida"> Comida</label><br>
+    <label><input type="checkbox" class="temaCheck" value="marcas"> Marcas</label><br>
+    <label><input type="checkbox" class="temaCheck" value="personajes"> Personajes</label><br>
+    <label><input type="checkbox" class="temaCheck" value="adultos" onchange="checkAdultos()"> Adultos 🔒</label><br>
+</div>
+<br><br>
+
+<!-- PIN para adultos -->
+<div id="pinBox">
+    <label>Introduce PIN:</label><br>
+    <input id="pinInput" type="password">
+    <button onclick="validarPIN()">OK</button>
+    <br><br>
+
+</div>
+    <label>¿Dar pista al impostor?</label><br>
+    <select id="pista">
+    <option value="no">No</option>
+    <option value="si">Sí</option>
     </select>
     <br><br>
 
-    <div id="pinBox">
-        <label>Introduce PIN:</label><br>
-        <input id="pinInput" type="password">
-        <button onclick="validarPIN()">OK</button>
-        <br><br>
-    </div>
 
     <button onclick="startGame()">Comenzar</button>
 </div>
