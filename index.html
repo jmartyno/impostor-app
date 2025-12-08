@@ -122,13 +122,27 @@ function showWord() {
 
 function nextPlayer() {
     current++;
+
+    // Si era el último jugador
     if (current >= roles.length) {
+
+        // Ocultar la palabra ANTES de mostrar el mensaje
+        document.getElementById("wordBox").innerText = "";
+
+        // También ocultamos los botones por seguridad
+        document.getElementById("showBtn").style.display = "none";
+        document.getElementById("nextBtn").style.display = "none";
+
         alert("Todos han visto su palabra. ¡A jugar!");
+
+        // Recargar la app limpia
         location.reload();
         return;
     }
+
     updatePlayer();
 }
+
 
 // PWA
 if ("serviceWorker" in navigator) {
